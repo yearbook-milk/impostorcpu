@@ -1,2 +1,2 @@
-# impostorcpu
+#ImpostorCPU
 sus
