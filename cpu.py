@@ -13,21 +13,34 @@ def fileio(name, mode, contents = ""):
         tr = None
     f.close()
     return tr
-    
-def wrapper_4byteget(addr):
-    nhxa = int(addr, 16)
-    if True:
-        b1 = memhandler.getbyte(addr)
-        b2 = memhandler.getbyte(str( hex ( int(addr, 16) + 1 ) )[2:].zfill(8) )
-        b3 = memhandler.getbyte(str( hex ( int(addr, 16) + 2 ) )[2:].zfill(8) )
-        b4 = memhandler.getbyte(str( hex ( int(addr, 16) + 3 ) )[2:].zfill(8) )
-        return str(b1+b2+b3+b4).zfill(8)
 
 def inrange(addr):
     if int(addr,16) % 4 == 0 and int(addr,16) > 255 and int(addr,16) < 16777216:
         return True
     else:
         return False
+
+def setreturn(statement):
+    if statement:
+        memhandler.writebyte('00000001', 'FF')
+        print('write true')
+    else:
+        memhandler.writebyte('00000001', '00')
+        print('write false')
+        
+def wrapper_4byteget(addr):
+    nhxa = int(addr, 16)
+    print('Inrange ',addr, inrange(addr) )
+    if inrange(addr):
+        b1 = memhandler.getbyte(addr)
+        b2 = memhandler.getbyte(str( hex ( int(addr, 16) + 1 ) )[2:].zfill(8) )
+        b3 = memhandler.getbyte(str( hex ( int(addr, 16) + 2 ) )[2:].zfill(8) )
+        b4 = memhandler.getbyte(str( hex ( int(addr, 16) + 3 ) )[2:].zfill(8) )
+        return str(b1+b2+b3+b4).zfill(8)
+    if not inrange(addr):
+        print('Val Non32',memhandler.getbyte(addr))
+        return memhandler.getbyte(addr)
+        
 def die(msg):
     input('ImpostorCPU Main FATAL: '+msg+'\nPress <ENTER> to exit.')
     exit()
@@ -130,7 +143,45 @@ def execute_program(startaddr):
                 nonhexaddr = int(memhandler.getbyte('00000005'), 16) + (int(''.join(current_ins[6:10]) , 16) * 11) - 11 #current + jump*11 
                 memhandler.writebyte('00000005', str(hex(nonhexaddr + 1))[2:].zfill(8).upper() ) #hexlify the new addr
                 print('New addr:',str(hex(nonhexaddr + 1))[2:].zfill(8).upper(),nonhexaddr)
-        
+        elif current_ins[0] == '08':
+
+            #test
+            #memhandler.writebyte('00000007','FF')
+            #test
+            
+            if current_ins[1] == '00': # LL
+                int1 = int(str(''.join(current_ins[2:6])), 16)
+                print('Operator 1',int1,''.join(current_ins[2:6]))
+                
+                int2 = int(str(''.join(current_ins[7:])), 16)
+                print('Operator 2',int2,''.join(current_ins[7:]))
+
+            if current_ins[1] == '01': #LA
+                int1 = int(str(''.join(current_ins[2:6])), 16)
+                print('Operator 1',int1,''.join(current_ins[2:6]))
+
+                int2 = int(wrapper_4byteget(''.join(current_ins[7:]) ),16)
+                print('Mem Operator 2',int2,''.join(current_ins[7:]) )
+
+            if current_ins[1] == '02': #AL
+                int1 = int(wrapper_4byteget(''.join(current_ins[2:6]) ),16)
+                print('Mem Operator 1',int1,''.join(current_ins[2:6]))
+
+                int2 = int(''.join(current_ins[7:]), 16)
+                print('Operator 2',int2,''.join(current_ins[7:]))
+
+            if current_ins[1] == '03': # AA
+                int1 = int(wrapper_4byteget(''.join(current_ins[2:6]) ),16)
+                print('Mem Operator 1',int1,''.join(current_ins[2:6]))
+
+                int2 = int(wrapper_4byteget(''.join(current_ins[7:]) ),16)
+                print('Mem Operator 2',int1,''.join(current_ins[7:]))
+
+            ops = {'00': '>=', '01': '>', '02': '<=', '03': '<', '04': '==', '05': '!='}
+            print('setreturn('+str(int1)+ops[current_ins[6]]+str(int2)+')')
+            exec('setreturn('+str(int1)+ops[current_ins[6]]+str(int2)+')')
+            print(memhandler.register)
+
         current_ins = []
 
 #load instructions

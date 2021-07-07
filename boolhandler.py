@@ -80,9 +80,9 @@ def comparison_operation(litaddr, addr1, operation, addr2): #either 8 or 32bit, 
 def intcomop(litaddr,addr1,operation,addr2):
     result = comparison_operation(litaddr,addr1,operation,addr2)
     if result:
-        writebyte('00000005', 'FF')
+        writebyte('00000001', 'FF')
     if not result:
-        writebyte('00000005', '00')
+        writebyte('00000001', '00')
         
 def logical_operation(litaddr,addr1,operation,addr2):
     ops = ['op1a and op2a','op1a or op2a','(not op1a and op2a) or (op1a and not op2a)','not op1a',]
@@ -117,7 +117,7 @@ def logical_operation(litaddr,addr1,operation,addr2):
     #this function writes to the memory and does not have a return value
     print('LOGICAL COMPARISON',addr1,op1,op1a,ops[int(operation,16)],addr2,op2,op2a)
 
-    exec('res = '+ops[int(operation,16)]+'\nprint("RESULT",res)\nif res == True:\n    writebyte("00000005", "FF")\nelse:\n    writebyte("00000005", "00")')
+    exec('res = '+ops[int(operation,16)]+'\nprint("RESULT",res)\nif res == True:\n    writebyte("00000001", "FF")\nelse:\n    writebyte("00000001", "00")')
     print(register)
     return None
 #unfinished, need logical AND|OR|XOR|NOT
