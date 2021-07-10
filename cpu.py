@@ -116,7 +116,7 @@ def execute_program(startaddr):
             
             if current_ins[1] == '00':
                 print('Literal byte',current_ins[5])
-                if current_ins[5] == 'FF':
+                if current_ins[5] != '00':
                     execute = True
                 else:
                     execute = False
@@ -129,7 +129,7 @@ def execute_program(startaddr):
                 if inrange(''.join(current_ins[2:6])):
                     die('Not a valid 8bit slot for result (0xFF or 0x00)')
 
-                if s == 'FF':
+                if s != '00':
                     execute = True
                 else:
                     execute = False
@@ -147,6 +147,7 @@ def execute_program(startaddr):
 
             #test
             #memhandler.writebyte('00000007','FF')
+            #write to 00000001 the operation
             #test
             
             if current_ins[1] == '00': # LL
@@ -182,6 +183,21 @@ def execute_program(startaddr):
             exec('setreturn('+str(int1)+ops[current_ins[6]]+str(int2)+')')
             print(memhandler.register)
 
+        elif current_ins[0] == '09':
+            #logicals (FF and 00, FF xor FF, etc.)
+
+            #test
+            memhandler.writebyte('00000007','01')
+            #test
+
+            print('LL/AA byte',current_ins[1])
+            print('addr1',''.join(current_ins[2:6]))
+            print('opbyte',current_ins[6])
+            print('addr2',''.join(current_ins[7:11]))
+            boolhandler.logical_operation(current_ins[1],''.join(current_ins[2:6]),current_ins[6],''.join(current_ins[7:11]))
+            print(memhandler.register)
+
+        
         current_ins = []
 
 #load instructions
