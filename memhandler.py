@@ -43,8 +43,10 @@ def die(msg):
 def getbyte(addr): #take hex address and get the thing
     #print('Addrget',addr)
     nhex_addr = int(str(addr),16)
-    if nhex_addr < 16:
+    if nhex_addr < 16 and register[addr] != None:
         return str(register[addr])
+    if nhex_addr < 16 and register[addr] == None:
+        die('Register value '+addr+' does not exist.')
     else:
         xcn = fileio('memory.txt', 'r')
         offset = xcn.find(str(addr))
