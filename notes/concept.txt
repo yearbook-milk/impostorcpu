@@ -97,20 +97,17 @@ COMMANDS
 {00 FF FF} {00 00 0F FF} {00 00 0F FE}
 
 ---01: Write memory operations (to write from memory, use the copy operation) (memhandler)
-For write literal: 01 01 00 <address> <bytes, can write up to 4 at once (32bit) but then they'll take four addresses>
-{01 01 00} {00 00 0F FF} {AF BD 00 FF}
-
-For write literal (one byte) (memhandler):
-{01 00 00} {00 00 0F FF} {AF Three Nullbyte}
+For write literal: 01 00 00 <address> <bytes, can write up to 4 at once (32bit) but then they'll take four addresses>
+{01 00 00} {00 00 0F FF} {AF BD 00 FF}
 
 For delete memory at value:: 01 01 00 <address> <byte> <four nullbyte> (memhandler)
-{01 01 01} {00 00 0F FF} {00 00 00 00}
+{01 01 00} {00 00 0F FF} {00 00 00 00}
 
 ---02: MATH/ADD OP NOSIGN INT (math)
 02 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
 {02 00 01} {00 00 00 01} {00 00 0F FF}
 
-The first one must be an addr holding a 32bit value, and the second one can be an addr or literal 32bit value.
+The first one must be an addr holding a 32bit or 8bite value value, and the second one can be an addr or literal 32bit/8bit value.
 If both are addresses, the total will be reflected in the first one. By grabbing the address, it grabs the address and the next three bytes to create a 4 byte
 object. It is a general rule that if you have 4 bytes, you grab them together. For this reason, only mem addresses 000000FF-01000000 that are multiples of 4 are valid to be written to.
 The rest are either reserved for other things or single byte memory.
@@ -120,6 +117,7 @@ By default, these operations work on unsigned int. For signed int, use 0x7FFFFFF
 that runs to handle signed ints.
 
 For floats, send commands by writing on 00 00 00 FF + 4 and receive on 00 00 01 04 + 4 (float handler chip).
+It's possible we won't even having a float chip.
 
 
 ---03: MATH/SUB OP INT (math)
@@ -146,7 +144,7 @@ the interpreter reads the value from that address and goes to the read value.
 07 00 00 <address> <four nullbytes>
 {07 00 00} {00 00 04 20} {00 00 00 00}
 
----08: COMPARISON WRITE (BOOLHANDLE)
+#---08: COMPARISON WRITE (BOOLHANDLE)
 08 <literal/addr byte> <ADDR> <COMPARISON> <ADDR>
 {08 00} {00 00 00 00} {02} {00 00 00 00}
 Literal addr byte: 00 for LL, 01 for LA, 02 for AL, 03 for AA
@@ -155,7 +153,7 @@ Operations: 00 for >=, 01 for >, 02 for <=, 03 for <, 04 for ==, 05 for !=
 Write FF to return register if true or 00 to return register if false.
 Then, copy to memory if you want. It'll stay there until overwritten.
 
----09: LOGICALS FROM MEMORY (WITH LOGICAL AND|OR|XOR|NOT) (BOOLHANDLE)
+#---09: LOGICALS FROM MEMORY (WITH LOGICAL AND|OR|XOR|NOT) (BOOLHANDLE)
 09 <literal/addr byte> <ADDR|LIT> <OPERATION> <ADDR|LIT>
 Literal addr byte: 00 for LL, 01 for LA, 02 for AL, 03 for AA
 Operation byte: in the order you see them in the () at the top, starting from 0x00 and going to 0x03
