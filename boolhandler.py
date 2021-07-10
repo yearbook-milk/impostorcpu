@@ -86,7 +86,7 @@ def intcomop(litaddr,addr1,operation,addr2):
         
 def logical_operation(litaddr,addr1,operation,addr2):
     ops = ['op1a and op2a','op1a or op2a','(not op1a and op2a) or (op1a and not op2a)','not op1a',]
-    
+    print(litaddr,addr1,operation,addr2)
     if litaddr == '00': #LL
         print('LL LOGIC')
         op1 = int(addr1, 16)
@@ -94,25 +94,28 @@ def logical_operation(litaddr,addr1,operation,addr2):
     if litaddr == '01': #LA
         print('LA LOGIC')
         op1 = int(addr1, 16)
-        op2 = getbyte(addr2)
+        op2 = int(getbyte(addr2),16)
     if litaddr == '02': #AL
         print('AL LOGIC')
-        op1 = getbyte(addr1)
+        op1 = int(getbyte(addr1),16)
         op2 = int(addr2, 16)
     if litaddr == '03':
         print('AA COMPARISON')
-        op1 = getbyte(addr1)
-        op2 = getbyte(addr2)
-    if op1 != '00':
+        op1 = int(getbyte(addr1),16)
+        op2 = int(getbyte(addr2),16)
+        
+    print(op1,op2)
+    if op1 != 0:
         op1a = True
-    if op1 == '00':
+    if op1 == 0:
         op1a = False
         
-    if op2 != '00':
+    if op2 != 0:
         op2a = True
-    if op2 == '00':
+    if op2 == 0:
         op2a = False
     toreturn = 'Error: toreturn not set'
+    print(ops[int(operation,16)])
     #print(locals())
     #this function writes to the memory and does not have a return value
     print('LOGICAL COMPARISON',addr1,op1,op1a,ops[int(operation,16)],addr2,op2,op2a)
