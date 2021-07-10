@@ -187,7 +187,7 @@ def execute_program(startaddr):
             #logicals (FF and 00, FF xor FF, etc.)
 
             #test
-            memhandler.writebyte('00000007','01')
+            #memhandler.writebyte('00000007','01')
             #test
 
             print('LL/AA byte',current_ins[1])
