@@ -92,11 +92,11 @@ and the operating system takes hold.
 
 
 COMMANDS
----00: Move memory operation (memhandler)
+#---00: Move memory operation (memhandler)
 00 <nullbyte> <nullbyte> <address> <address>
 {00 FF FF} {00 00 0F FF} {00 00 0F FE}
 
----01: Write memory operations (to write from memory, use the copy operation) (memhandler)
+#---01: Write memory operations (to write from memory, use the copy operation) (memhandler)
 For write literal: 01 00 00 <address> <bytes, can write up to 4 at once (32bit) but then they'll take four addresses>
 {01 00 00} {00 00 0F FF} {AF BD 00 FF}
 
