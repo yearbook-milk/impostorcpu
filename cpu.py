@@ -78,7 +78,8 @@ def execute_program(startaddr):
         elif current_ins[0] == '0B':
             die('0B is not a valid command')
             
-        #jump handling    
+        #jump handling
+            
         elif current_ins[0] == '06': #write the address of the current instruction to an address
             addrto = ''.join(current_ins[3:7])
             print('Destination address:',addrto)
@@ -196,6 +197,38 @@ def execute_program(startaddr):
             print('addr2',''.join(current_ins[7:11]))
             boolhandler.logical_operation(current_ins[1],''.join(current_ins[2:6]),current_ins[6],''.join(current_ins[7:11]))
             print(memhandler.register)
+
+
+        #memory operations
+
+        #test
+        #memhandler.writebyte('99ABCD42', 'F4')
+        #test
+        
+        elif current_ins[0] == '00':
+            #memhandler.writebyte('99ABCD42', 'F4')
+            #memhandler.writefourbyte('00000104', 'F4','31','31','25')
+            contents = None
+            contents = wrapper_4byteget(''.join(current_ins[3:7]))
+            print('Addr1:',contents,current_ins[3:7])
+            print('Addr2:',current_ins[7:11])
+
+            if len(contents) == 2:
+                memhandler.writebyte(''.join(current_ins[7:11]), contents)
+                print('00 non32 Copy contents')
+            else:
+                memhandler.writefourbyte(''.join(current_ins[7:11]), contents[0:2], contents[2:4], contents[4:6], contents[6:8])
+                print('00 Copy',contents[0:2], contents[2:4], contents[4:6], contents[6:8])
+
+        elif current_ins[0] == '01' and current_ins[1] == '00': #for writing a literal, the other option is delete
+            if inrange(''.join(current_ins[3:7])):
+                memhandler.writefourbyte(''.join(current_ins[3:7]), current_ins[7], current_ins[8], current_ins[9], current_ins[10])
+                print('01 00 Command 32',''.join(current_ins[3:7]), current_ins[7], current_ins[8], current_ins[9], current_ins[10])
+            else:
+                memhandler.writebyte(''.join(current_ins[3:7]), current_ins[10])
+
+        elif current_ins[0] == '01' and current_ins[1] == '01':
+            
 
         
         current_ins = []
