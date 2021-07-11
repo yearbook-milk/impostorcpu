@@ -1,5 +1,4 @@
 # ImpostorCPU
-## sus
-### no i didnt make this just to make among us jokes
+## [sus]
 
-Program designed to mimic an actual CPU, or at least try to get close to it. Some features aren't on the real thing, some are, but it's the concept that counts ig
+Program designed to mimic an actual CPU, or at least try to get close to it. Basic operations like move memory, do math, etc. mimic the real thing, but the way that everything connect (buses, etc.) is nowhere near real. And no, I didn't name it ImpostorCPU just to make amoogus jokes
