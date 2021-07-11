@@ -228,7 +228,26 @@ def execute_program(startaddr):
                 memhandler.writebyte(''.join(current_ins[3:7]), current_ins[10])
 
         elif current_ins[0] == '01' and current_ins[1] == '01':
-            
+            if inrange(''.join(current_ins[3:7])):
+                f = open('memory.txt', 'r')
+                s = f.read()
+                f.close()
+
+                nhex_addr = int(''.join(current_ins[3:7]), 16)
+                print(str(hex(nhex_addr + 1))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '\n')
+
+                s = s.replace(''.join(current_ins[3:7]) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '', '')
+                s = s.replace(str(hex(nhex_addr + 1))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '', '')
+                s = s.replace(str(hex(nhex_addr + 2))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '', '')
+                s = s.replace(str(hex(nhex_addr + 3))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '', '')
+
+                fileio('memory.txt','w',s)    
+                                
+            else:
+                f = open('memory.txt', 'r')
+                s = f.read().replace(''.join(current_ins[3:7])+' '+memhandler.getbyte(''.join(current_ins[3:7]))+'\n', '' )
+                f.close()
+                fileio('memory.txt','w',s)                                   
 
         
         current_ins = []
