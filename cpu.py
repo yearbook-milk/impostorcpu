@@ -249,6 +249,33 @@ def execute_program(startaddr):
                 f.close()
                 fileio('memory.txt','w',s)                                   
 
+
+
+
+        #math handling
+
+
+
+        elif current_ins[0] == '02':
+            cL = 'LITERAL'
+            aL = 'ADDRESS'
+            o = None
+            print('Add Operation')
+            addr1 = ''.join(current_ins[3:7])
+            print(addr1)
+            addr2 = ''.join(current_ins[7:11])
+            print(addr2)
+
+            if current_ins[1] == '00':
+                o = cL
+            if current_ins[1] == '01':
+                o = aL
+
+            if inrange(addr1):
+                mathshandler.operation_32bit(addr1, o, '+', addr2)
+            else:
+                mathshandler.eightbit_operation(addr1, o, '+', addr2)
+                
         
         current_ins = []
 
