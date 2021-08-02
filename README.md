@@ -1,6 +1,7 @@
 # ImpostorCPU
 ## [sus]
 
+**Note that this project has been suspended until further notice.**
 Program designed to mimic an actual CPU, or at least try to get close to it. Basic operations like move memory, do math, etc. mimic the real thing, but the way most other things work (buses, etc.) are made up and don't look like the real thing in the slightest.
 
 Instruction size: 11 bytes
