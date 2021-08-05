@@ -221,6 +221,7 @@ def execute_program(startaddr):
                 print('00 Copy',contents[0:2], contents[2:4], contents[4:6], contents[6:8])
 
         elif current_ins[0] == '01' and current_ins[1] == '00': #for writing a literal, the other option is delete
+            print(''.join(current_ins[3:7]))
             if inrange(''.join(current_ins[3:7])):
                 memhandler.writefourbyte(''.join(current_ins[3:7]), current_ins[7], current_ins[8], current_ins[9], current_ins[10])
                 print('01 00 Command 32',''.join(current_ins[3:7]), current_ins[7], current_ins[8], current_ins[9], current_ins[10])
