@@ -1,0 +1,39 @@
+MOVE MEMORY
+movmem 00_00_0F_FF->00_00_0F_FE
+
+WRITE MEMORY
+memset 00_00_0F_FF<-00_00_0F_FE
+
+MATHS
+add    FF_00_01_04<-FF_00_01_05 | lit
+sub    FF_00_01_04<-FF_00_01_05 | adr
+mul    FF_00_01_04<-FF_00_01_05 | lit
+div    FF_00_01_04<-FF_00_01_05 | adr
+
+JUMPS
+label  00_00_01_04
+goto   00_00_01_04 | lit // 0C command
+goto   00_00_01_04 | adr // 07 command
+
+IF HANDLING
+compar lit[00_FF_FF_FE] == adr[00_FF_FF_FF] | 00_00_00_09  // with copy to other addr
+compar adr[00_FF_FF_FE] >= lit[00_FF_FF_FF]                // leave in register 0x01
+
+logic  lit[00_FF_FF_FE] AND adr[00_FF_FF_FF] | 00_00_00_09 // with copy to other addr
+logic  lit[00_FF_FF_FE] AND adr[00_FF_FF_FF]               // leave in register 0x01
+logic  adr[00_FF_01_04] NOT                                // not syntax A
+logic  adr[00_FF_01_04] NOT | 00_00_00_09                  // not syntax B
+
+if     adr[00_0F_FF_04] {
+sample instructions | lit
+sample instructions | adr
+remark you make the comparison first, write it to mem and then have the if read from that slot
+remark bridge.py will automatically fill in the number of instructions
+}
+
+FLOW
+remark This allows you to make comments.
+stop   // this allows you to stop the program
+memdmp // this runs the "dump mem to stdout" command
+crash  // for testing only, runs 0B command
+
