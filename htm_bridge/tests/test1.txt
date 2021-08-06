@@ -1,0 +1,8 @@
+memset FF_00_01_02<-00_00_00_00
+memdel FF_00_01_02
+memset FF_00_01_02<-00_00_00_00
+remark
+remark
+movmem FF_00_01_02->FF_00_01_04
+add    FF_00_01_04<-00_00_00_05 | lit
+stop   

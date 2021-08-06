@@ -3,6 +3,7 @@ movmem 00_00_0F_FF->00_00_0F_FE
 
 WRITE MEMORY
 memset 00_00_0F_FF<-00_00_0F_FE
+memdel 00_00_0F_FF
 
 MATHS
 add    FF_00_01_04<-FF_00_01_05 | lit
@@ -24,12 +25,12 @@ logic  lit[00_FF_FF_FE] AND adr[00_FF_FF_FF]               // leave in register 
 logic  adr[00_FF_01_04] NOT                                // not syntax A
 logic  adr[00_FF_01_04] NOT | 00_00_00_09                  // not syntax B
 
-if     adr[00_0F_FF_04] {
+if     adr[00_0F_FF_04]
 sample instructions | lit
 sample instructions | adr
 remark you make the comparison first, write it to mem and then have the if read from that slot
 remark bridge.py will automatically fill in the number of instructions
-}
+endif  
 
 FLOW
 remark This allows you to make comments.
