@@ -1,0 +1,189 @@
+  _____                           _              _____ _____  _    _ 
+ |_   _|                         | |            / ____|  __ \| |  | |
+   | |  _ __ ___  _ __   ___  ___| |_ ___  _ __| |    | |__) | |  | |
+   | | | '_ ` _ \| '_ \ / _ \/ __| __/ _ \| '__| |    |  ___/| |  | |
+  _| |_| | | | | | |_) | (_) \__ \ || (_) | |  | |____| |    | |__| |
+ |_____|_| |_| |_| .__/ \___/|___/\__\___/|_|   \_____|_|     \____/ 
+                 | |                                                 
+                 |_|                                                 
+
+-----------------------------------------------------------------------------
+
+CONCEPT
+This virtual CPU is in no way accurate to a real CPU and is written for no reason at all (but I learned about computer hardware for my own benefit ig so its cool)
+It is highly inefficient in how it runs, especially given that one cycle of the CPU could take a few ms and one instruction a few more ms.
+
+Code is written in hex instead of bits, and is then converted when it's time to go.
+
+Short term memory is written to by using a command. Certain phsyical memory addresses
+are used to send commands to other "processes", separate instances of the "logic core" (one instance of the main file).
+
+The cap on physical addresses is 4,294,967,295, or 0xFFFFFFFF.
+Registers can be written to by using putting the below addresses into the slot:
+0x00000000 to 0x0000000F
+
+Communication is done with hardware/drivers/buses/controllers/whatever by writing to certain memory addresses that are tuned into by "other units"
+These are just other instances of the CPU acting as another chip OR device firmware for storage, etc that is written in Python (because it's not connected to any real hardware).
+
+NULL is all bits 0.
+
+
+
+All commands are:
+-11 bytes
+-involve two operands of four bytes each
+
+In these examples, nullbytes are 00, fake mem addresses are 0x00000FFF and 0x00000FFE.
+
+REGISTERS
+0 Reserved
+1 Return Register
+2 Accumulator
+3 Instruction
+4 Iteration Counter
+5 Program Counter
+6 R1
+7 R2
+7 R3
+8 R4
+9 R5
+A R6
+B R7
+C R8
+D R9
+E Reserved
+F Reserved
+
+DEVICE ADDRESSES NECESSARY FOR STARTUP
+00 00 00 00 - 00 00 00 0F: Registers
+01 00 00 0B: Keyboard input
+01 00 00 0C: Command input for storage controller
+
+00 00 01 08 - 00 00 01 0B: Storage controller input 0
+00 00 01 10 - 00 00 01 13: Turn on manager
+00 00 01 14 - 00 00 01 17: Display input
+00 00 01 18 - 00 00 01 1B: Serial bus input
+00 00 01 1C - 00 00 01 1F: Serial bus output
+
+STARTUP
+CPU starts up
+CPU initializes the embedded program
+Program tells other devices to turn on and listen up through the power manager, mainly: storage controller, key input, and the display. 
+As it turns things on, it outputs to display which is the first thing that it does.
+Program puts text on screen and waits for keyboard input as for next instruction.
+
+"IMPOSTOR-CPU Firmware Version 1.0
+
+Display interface loaded.
+Keyboard interface loaded.
+
+What would you like to do?
+1. Load the operating system from disk OR
+2. Shut down all components of the system.
+Make a selection by hitting a key.
+"
+
+If instructed, program will send command to storage controller to start loading in the OS
+from a certain byte. Then, it instructs the interpreter to go to that byte and start reading, at which the embedded program stops
+and the operating system takes hold.
+
+
+COMMANDS
+#---00: Move memory operation (memhandler)
+00 <nullbyte> <nullbyte> <address> <address>
+{00 FF FF} {00 00 0F FF} {00 00 0F FE}
+
+#---01: Write memory operations (to write from memory, use the copy operation) (memhandler)
+For write literal: 01 00 00 <address> <bytes, can write up to 4 at once (32bit) but then they'll take four addresses>
+{01 00 00} {00 00 0F FF} {AF BD 00 FF}
+
+For delete memory at value:: 01 01 00 <address> <byte> <four nullbyte> (memhandler)
+{01 01 00} {00 00 0F FF} {00 00 00 00}
+
+#---02: MATH/ADD OP NOSIGN INT (math)
+02 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
+{02 00 01} {00 00 00 01} {00 00 0F FF}
+
+The first one must be an addr holding a 32bit or 8bite value value, and the second one can be an addr or literal 32bit/8bit value.
+If both are addresses, the total will be reflected in the first one. By grabbing the address, it grabs the address and the next three bytes to create a 4 byte
+object. It is a general rule that if you have 4 bytes, you grab them together. For this reason, only mem addresses 000000FF-01000000 that are multiples of 4 are valid to be written to.
+The rest are either reserved for other things or single byte memory.
+
+All the math operations modify the first address with the second. Note that these basic math operations only work with integers.
+By default, these operations work on unsigned int. For signed int, use 0x7FFFFFFF (2,147,483,647) as 0. It'll work that way in memory and its up to software
+that runs to handle signed ints.
+
+For floats, send commands by writing on 00 00 00 FF + 4 and receive on 00 00 01 04 + 4 (float handler chip).
+It's possible we won't even having a float chip.
+
+
+#---03: MATH/SUB OP INT (math)
+03 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
+{03 00 01} {00 00 00 01} {00 00 0F FF}
+
+#---04: MATH/MUL OP INT (math)
+04 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
+{04 00 01} {00 00 00 01} {00 00 0F FF}
+
+#---05: MATH/DIV OP INT (WRITE INT QUOTIENT) (math)
+05 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
+{05 00 01} {00 00 00 01} {00 00 0F FF}
+
+#---06: GOTO LABEL (CPU file itself)
+06 00 00 <address that can hold four bytes> <four nullbytes>
+{06 00 00} {00 00 04 20} {00 00 00 00}
+
+This writes the start byte of the next instruction to memory, then
+use that address to refer to that point. Instead of starting at that address,
+the interpreter reads the value from that address and goes to the read value.
+
+#---07: JUMP STATEMENT (SYMBOLIC) (CPU file itself)
+07 <address> <six nullbytes>
+{07} {00 00 04 20} {00 00 00 00 00 00}
+
+#---08: COMPARISON WRITE (BOOLHANDLE)
+08 <literal/addr byte> <ADDR> <COMPARISON> <ADDR>
+{08 00} {00 00 00 00} {02} {00 00 00 00}
+Literal addr byte: 00 for LL, 01 for LA, 02 for AL, 03 for AA
+Operations: 00 for >=, 01 for >, 02 for <=, 03 for <, 04 for ==, 05 for !=
+
+Write FF to return register if true or 00 to return register if false.
+Then, copy to memory if you want. It'll stay there until overwritten.
+
+#---09: LOGICALS FROM MEMORY (WITH LOGICAL AND|OR|XOR|NOT) (BOOLHANDLE)
+09 <literal/addr byte> <ADDR|LIT> <OPERATION> <ADDR|LIT>
+Literal addr byte: 00 for LL, 01 for LA, 02 for AL, 03 for AA
+Operation byte: in the order you see them in the () at the top, starting from 0x00 and going to 0x03
+{09 03} {00 00 0F FF} {00} {00 00 0F FE}
+
+Write FF to return register if true, or 00 to return register if false.
+Then copy to memory, if you want. It'll stay there until overwritten.
+
+#---OA: IF STATEMENT (CPU file itself)
+0A <literal 0x00 /addr 0x01> <addr/contents> <how_many_instructions_to_jump (can go up to a lot)>
+{0A 01} {00 00 0F FF} {00 00 00 01}
+
+If the value is true, then execute the next instructions as usual, otherwise, instruct the counter to skip over the next steps (based on the last 4 bytes)
+and move on to the next thing.
+
+#---OB: None
+This used to be something else but has been removed since.
+
+#---OC: START FROM BYTE IN MEM (CPU file itself)
+0C <ADDR> <SIX NULLBYTES>
+0C {00 00 FF FF} {00 00 00 00 00 00}
+
+The embedded firmware, once everything is in order, tells the storage controller to load a bunch of byte instructions, then executes them starting from a certain address and ending when it hits the STOP
+instruction.
+
+#---OD: STOP PROGRAM (CPU file itself)
+0D <TEN NULLBYTES>
+0D {00 00 00 00 00 00 00 00 00 00}
+
+This marks the end of a program that isn't the embedded firmware that is preprogrammed to start.
+
+#---OE: MEMDUMP VIA DISPLAY (CPU file itself)
+0E <TEN NULLBYTES>
+0E {00 00 00 00 00 00 00 00 00 00}
+
+This is not a real thing, but rather, it prints out all values in memory and in registers.
