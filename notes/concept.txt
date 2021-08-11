@@ -59,10 +59,7 @@ DEVICE ADDRESSES NECESSARY FOR STARTUP
 01 00 00 0B: Keyboard input
 01 00 00 0C: Command input for storage controller
 
-00 00 01 00 - 00 00 01 03: Floating point handler input
-00 00 01 04 - 00 00 01 07: Floating point handler output
 00 00 01 08 - 00 00 01 0B: Storage controller input 0
-00 00 01 0C - 00 00 01 0F: Storage controller unused (reserved)
 00 00 01 10 - 00 00 01 13: Turn on manager
 00 00 01 14 - 00 00 01 17: Display input
 00 00 01 18 - 00 00 01 1B: Serial bus input
@@ -103,7 +100,7 @@ For write literal: 01 00 00 <address> <bytes, can write up to 4 at once (32bit) 
 For delete memory at value:: 01 01 00 <address> <byte> <four nullbyte> (memhandler)
 {01 01 00} {00 00 0F FF} {00 00 00 00}
 
----02: MATH/ADD OP NOSIGN INT (math)
+#---02: MATH/ADD OP NOSIGN INT (math)
 02 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
 {02 00 01} {00 00 00 01} {00 00 0F FF}
 
@@ -120,15 +117,15 @@ For floats, send commands by writing on 00 00 00 FF + 4 and receive on 00 00 01 
 It's possible we won't even having a float chip.
 
 
----03: MATH/SUB OP INT (math)
+#---03: MATH/SUB OP INT (math)
 03 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
 {03 00 01} {00 00 00 01} {00 00 0F FF}
 
----04: MATH/MUL OP INT (math)
+#---04: MATH/MUL OP INT (math)
 04 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
 {04 00 01} {00 00 00 01} {00 00 0F FF}
 
----05: MATH/DIV OP INT (WRITE INT QUOTIENT) (math)
+#---05: MATH/DIV OP INT (WRITE INT QUOTIENT) (math)
 05 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
 {05 00 01} {00 00 00 01} {00 00 0F FF}
 
@@ -141,8 +138,8 @@ use that address to refer to that point. Instead of starting at that address,
 the interpreter reads the value from that address and goes to the read value.
 
 #---07: JUMP STATEMENT (SYMBOLIC) (CPU file itself)
-07 00 00 <address> <four nullbytes>
-{07 00 00} {00 00 04 20} {00 00 00 00}
+07 <address> <six nullbytes>
+{07} {00 00 04 20} {00 00 00 00 00 00}
 
 #---08: COMPARISON WRITE (BOOLHANDLE)
 08 <literal/addr byte> <ADDR> <COMPARISON> <ADDR>
@@ -190,47 +187,3 @@ This marks the end of a program that isn't the embedded firmware that is preprog
 0E {00 00 00 00 00 00 00 00 00 00}
 
 This is not a real thing, but rather, it prints out all values in memory and in registers.
-
-
-
-STORAGE CONTROLLER
-The way the storage works will have to be programmed clverly.
-Each individual byte will still be addressed with an int address.
-
-There should be a small partition where the ASCII chars are stored next to the beginning and end address.
-First up, the initial firmware knows exactly how much the OS needs to load, by extracting the first four bytes out to get the instructions size.
-
-Then, it gets bytes from 4 to 4+instruction size from first load.
-The bytes are loaded beginning from a certain address. The instructions are then executed one by one just like the firmware. The OS then takes hold of everything, like 
-when you let a child drive a car. Hopefully it all goes well.
-
-Now, you know I'm not smart enough to figure out all this filesystem shit, so the filesystem will just be:
-
-
-EXPIRED-SOUP FILE SYSTEM
-{ = start byte pattern
-} = end byte pattern
-# = directory name prefix
-; = item separator
-$ = filename prefix
-_ = data delimiter
-
-RANDOM BYTES HERE A{ #dirname[ $filename_contents; $filename1_contents; ] #dirname1[$filename_anymetadata_contents] }
-
-Path: A/dirname/filename1
-
-Unforunately, the way this works is you write groups of four bytes through the four byte address for parameters, then use the single byte channel to send a command.
-Alternatively, we could just, know, write one byte at a time.
-The commands are:
-
-COMMAND DESC               PARAMS
-00      Write bytes        Filepath*Bytes
-01      Read file          Filepath*Memaddr to read to
-02      Read bytes 1 by 1  Destination memaddr*Startaddr*Endaddr
-
-Any trailing bytes on the four byte address is discarded (i.e. A/12 /111 1.txt m[0x00][0x00][0x00]), 0x00s on the end would be chopped off
-
-From there Python does the handling. If you write to a nonexistent file it'll create one for you.
-
-Alternatively, you could just not have a filesystem and have everything be in memory. By not choosing to load that interface, you remove the ability for filesystem entirely.
-The FS is designed to be just "folders. files. contents. done."
