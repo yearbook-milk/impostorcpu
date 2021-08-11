@@ -68,11 +68,11 @@ for i in instructions:
         params = litadr[0].split('<-')
         #print(litadr)
         if litadr[1] == 'lit':
-            print('04*00 ADD: ',params[0],'*',params[1])
+            print('04*00 MUL: ',params[0],'*',params[1])
             tr = tr + '{04 00 00} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
         if litadr[1] == 'adr':
-            print('04*01 ADD: ',params[0],'*',params[1])
+            print('04*01 MUL: ',params[0],'*',params[1])
             tr = tr + '{04 00 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
 
@@ -81,13 +81,30 @@ for i in instructions:
         params = litadr[0].split('<-')
         #print(litadr)
         if litadr[1] == 'lit':
-            print('05*00 ADD: ',params[0],'/',params[1])
+            print('05*00 DIV: ',params[0],'/',params[1])
             tr = tr + '{05 00 00} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
         if litadr[1] == 'adr':
-            print('05*01 ADD: ',params[0],'/',params[1])
+            print('05*01 DIV: ',params[0],'/',params[1])
             tr = tr + '{05 00 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
+
+    if cmd == 'label ':
+        tr = tr + '{06 00 00} {'+formats(ins)+'} {00 00 00 00}'
+        print('06 LABEL')
+
+    if cmd == 'goto  ':
+        litadr = ins.split(' | ')
+        if litadr[1] == 'lit':
+            tr = tr + '{0C} ' + formats(litadr[0]) + '{00 00 00 00 00 00}'
+            print('0C GOTO:',litadr[0])
+        if litadr[1] == 'adr':
+            tr = tr + '{07 00 00} {'+formats(litadr[0])+'} {00 00 00 00}'
+            print('07 GOTO:',litadr[0])
+            print(tr)
+            
         
     endtotal = endtotal + tr + '\n'
     print('\n')
+
+fileio('after.txt','w',endtotal)
