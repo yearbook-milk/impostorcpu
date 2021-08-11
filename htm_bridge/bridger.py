@@ -99,7 +99,7 @@ for i in instructions:
             tr = tr + '{0C} ' + formats(litadr[0]) + '{00 00 00 00 00 00}'
             print('0C GOTO:',litadr[0])
         if litadr[1] == 'adr':
-            tr = tr + '{07 00 00} {'+formats(litadr[0])+'} {00 00 00 00}'
+            tr = tr + '{07} {'+formats(litadr[0])+'} {00 00 00 00 00 00}'
             print('07 GOTO:',litadr[0])
             print(tr)
             
