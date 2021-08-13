@@ -13,6 +13,7 @@ def formats(s):
 file = fileio('before.txt', 'r')
 instructions = file.split('\n')
 endtotal = ''
+compact = True
 
 for i in instructions:
     iss = i.split(' // ', 1)[0]
@@ -133,10 +134,13 @@ for i in instructions:
 
         if len(toplevel) > 1:
             tr = tr + '\n{00 00 00} {00 00 00 01} {'+formats(toplevel[1])+'}'
-            print('MOVMEM flag, to',toplevel[1])
+            print('++ MOVMEM flag specified, destination',toplevel[1])
             
         
     endtotal = endtotal + tr + '\n'
     print('\n')
 
-fileio('after.txt','w',endtotal)
+if compact:
+    fileio('after.txt','w',formats(endtotal))
+else:
+    fileio('after.txt','w',endtotal)
