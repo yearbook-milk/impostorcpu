@@ -1,0 +1,11 @@
+label  00_00_01_04
+memset FF_00_01_02<-00_00_00_00
+memdel FF_00_01_02
+memset FF_00_01_02<-00_00_00_01
+remark
+remark
+movmem FF_00_01_02->FF_00_01_04
+add    FF_00_01_04<-00_00_00_01 | adr
+compar adr[FF000104] == adr[FF000104] | 00 00 00 09
+goto   A0_00_00_00 | lit
+stop   
