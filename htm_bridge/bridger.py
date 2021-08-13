@@ -8,7 +8,7 @@ def fileio(name, mode, contents = ""):
     f.close()
     return tr
 def formats(s):
-    return s.replace('0x','').replace('_', '').replace('{', '').replace('}', '')
+    return s.replace('0x','').replace('_', '').replace('{', '').replace('}', '').replace(' ','').replace('\n','')
 
 file = fileio('before.txt', 'r')
 instructions = file.split('\n')
@@ -96,12 +96,44 @@ for i in instructions:
     if cmd == 'goto  ':
         litadr = ins.split(' | ')
         if litadr[1] == 'lit':
-            tr = tr + '{0C} ' + formats(litadr[0]) + '{00 00 00 00 00 00}'
+            tr = tr + '{0C} {' + formats(litadr[0]) + '} {00 00 00 00 00 00}'
             print('0C GOTO:',litadr[0])
         if litadr[1] == 'adr':
             tr = tr + '{07} {'+formats(litadr[0])+'} {00 00 00 00 00 00}'
             print('07 GOTO:',litadr[0])
             print(tr)
+
+    if cmd == 'compar':
+        operators = {
+'>=': '00',
+'>': '01',
+'<=': '02',
+'<': '03',
+'==': '04',
+'!=': '05',
+            }
+        toplevel = ins.split(' | ')
+        midlevel = toplevel[0].split(' ')
+        #print(midlevel)
+        litadr1 = midlevel[0][0:3]
+        litadr2 = midlevel[2][0:3]
+        #print(litadr1,litadr2)
+
+        if litadr1=='lit' and litadr2=='lit':
+            litadrfinal = '00'
+        if litadr1=='lit' and litadr2=='adr':
+            litadrfinal = '01'
+        if litadr1=='adr' and litadr2=='lit':
+            litadrfinal = '02'
+        if litadr1=='adr' and litadr2=='adr':
+            litadrfinal = '03'
+        
+        tr = tr + '{08} {'+litadrfinal+'} {'+formats(midlevel[0][4:-1])+'} {'+operators[midlevel[1]]+'} {'+formats(midlevel[2][4:-1])+'}'
+        print('08',litadrfinal,'COMPAR:',tr)
+
+        if len(toplevel) > 1:
+            tr = tr + '\n{00 00 00} {00 00 00 01} {'+formats(toplevel[1])+'}'
+            print('MOVMEM flag, to',toplevel[1])
             
         
     endtotal = endtotal + tr + '\n'
