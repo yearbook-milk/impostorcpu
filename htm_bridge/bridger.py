@@ -13,8 +13,9 @@ def formats(s):
 file = fileio('before.txt', 'r')
 instructions = file.split('\n')
 endtotal = ''
-compact = True
+compact = False
 
+###########################################
 for i in instructions:
     iss = i.split(' // ', 1)[0]
     cmd = iss[0:6]
@@ -134,11 +135,58 @@ for i in instructions:
 
         if len(toplevel) > 1:
             tr = tr + '\n{00 00 00} {00 00 00 01} {'+formats(toplevel[1])+'}'
-            print('++ MOVMEM flag specified, destination',toplevel[1])
-            
-        
+            print('++ COMPAR/MOVMEM flag specified, destination',toplevel[1])
+
+
+    if cmd == 'logic ':
+        toplevel = ins.split(' | ')
+        midlevel = toplevel[0].split(' ')
+        operations = {
+'AND': '00',
+'OR':'01',
+'XOR':'02'
+            }
+
+        litadr1 = midlevel[0][0:3]
+        litadr2 = midlevel[0][0:3]
+
+        if litadr1=='lit' and litadr2=='lit':
+            litadrfinal = '00'
+        if litadr1=='lit' and litadr2=='adr':
+            litadrfinal = '01'
+        if litadr1=='adr' and litadr2=='lit':
+            litadrfinal = '02'
+        if litadr1=='adr' and litadr2=='adr':
+            litadrfinal = '03'
+
+        tr = tr + '{09} {' +litadrfinal+'} {'+formats(midlevel[0][4:-1])+'} {'+operations[midlevel[1]]+'} {'+formats(midlevel[2][4:-1])+'}'
+        print('09',litadrfinal,'LOGIC:',tr)
+
+        if len(toplevel) > 1:
+            tr = tr + '\n{00 00 00} {00 00 00 01} {'+formats(toplevel[1])+'}'
+            print('++ LOGIC/MOVMEM flag specified, destination',toplevel[1],'\n')
+
+    if cmd == 'memdmp':
+        tr = tr + '{0E} {00 00 00 00 00 00 00 00 00 00}'
+        print('0E MEMDMP')
+
+    if cmd == 'notlgc':
+        toplevel = ins.split(' | ')
+        if toplevel[0][0:3] == 'lit':
+            litadr = '00' # LL
+        if toplevel[0][0:3] == 'adr':
+            litadr = '02' # AL
+
+        tr = '{09} {'+litadr+'} {'+formats(toplevel[0][4:-1])+'} {03} {00 00 00 01}'
+        print('09 NOT',litadr,'LOGIC:',tr)
+
+
+#############################################
     endtotal = endtotal + tr + '\n'
     print('\n')
+
+
+        
 
 if compact:
     fileio('after.txt','w',formats(endtotal))
