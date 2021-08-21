@@ -180,6 +180,35 @@ for i in instructions:
         tr = '{09} {'+litadr+'} {'+formats(toplevel[0][4:-1])+'} {03} {00 00 00 01}'
         print('09 NOT',litadr,'LOGIC:',tr)
 
+    if cmd == 'if    ':
+        insla = ins[0:3]
+        if insla == 'lit':
+            labyte = '00'
+        if insla == 'adr':
+            labyte = '01'
+
+        tr = '{0A} {'+labyte+'} {'+formats(ins[4:-1])+'} {INS.SKIP} {00}'
+        print('0A',labyte,'IF PRECOMP:',tr)
+
+        begin = instructions.index(i)
+        try: end = instructions.index('endif  X')
+        except ValueError: end = instructions.index('endif  ')
+
+        jump = end - begin
+
+        things = instructions[begin:end]
+        for j in things:
+            #print(j)
+            if 'remarkAAAnomatch' in j or len(j) == 0 or 'endif' in j:
+                jump = jump - 1
+
+        jump = jump - 0
+        jump = hex(jump).replace('0x','').zfill(8).upper()
+                
+
+        tr = tr.replace('INS.SKIP', str(jump) )
+        print('0A',labyte,'IF POSTCOMP:',tr)
+
 
 #############################################
     endtotal = endtotal + tr + '\n'
