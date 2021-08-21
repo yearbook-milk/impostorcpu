@@ -100,6 +100,11 @@ For write literal: 01 00 00 <address> <bytes, can write up to 4 at once (32bit) 
 For delete memory at value:: 01 01 00 <address> <byte> <four nullbyte> (memhandler)
 {01 01 00} {00 00 0F FF} {00 00 00 00}
 
+
+---
+Note that the following documentation is incorrect. On math commands, the nullbyte is after the Lit/Adr byte, not the other way around.
+---
+
 #---02: MATH/ADD OP NOSIGN INT (math)
 02 <nullbyte> <literal 0x00 OR address 0x01 byte> <ADDR> <ADDR>
 {02 00 01} {00 00 00 01} {00 00 0F FF}
