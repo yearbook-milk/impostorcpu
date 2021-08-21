@@ -165,8 +165,8 @@ Write FF to return register if true, or 00 to return register if false.
 Then copy to memory, if you want. It'll stay there until overwritten.
 
 #---OA: IF STATEMENT (CPU file itself)
-0A <literal 0x00 /addr 0x01> <addr/contents> <how_many_instructions_to_jump (can go up to a lot)>
-{0A 01} {00 00 0F FF} {00 00 00 01}
+0A <literal 0x00 /addr 0x01> <nullbyte> <addr/contents> <how_many_instructions_to_jump (can go up to a lot)>
+{0A 01 00} {00 00 0F FF} {00 00 00 01}
 
 If the value is true, then execute the next instructions as usual, otherwise, instruct the counter to skip over the next steps (based on the last 4 bytes)
 and move on to the next thing.
