@@ -1,0 +1,19 @@
+label  00_00_01_04 // goto label at 00000104
+if     lit[00000000]
+memset FF_00_01_02<-00_00_00_00 // set FF000102 to 0
+memdel FF_00_01_02 // delete FF000102
+memset FF_00_01_02<-00_00_00_01 // set FF000102 to 1
+remark
+remark
+movmem FF_00_01_02->FF_00_01_04 //  copy FF000102 to FF000104
+add    FF_00_01_04<-00_00_00_01 | adr // add value of register 1 to FF000104, designed to crash program for test
+compar adr[FF000104] == adr[FF000104] | 0xFF000105 // true statement to FF000105
+compar lit[FF000104] == lit[FF000104] | 0xFF000106 // another true statement to FF000106
+logic  adr[FF000106] XOR adr[FF000105] | 0xFF00010A // XOR on FF105/6, returns false to FF00010A
+notlgc adr[FF00010A] // inverts FF00010A and sends it to return register
+memdmp X
+goto   A0_00_00_00 | lit // loop back to beginning address
+endif  X
+memdmp X
+memset FF_00_01_02<-00_00_00_00
+stop   X
