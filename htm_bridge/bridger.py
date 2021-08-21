@@ -49,7 +49,7 @@ for i in instructions:
             #print(tr)
         if litadr[1] == 'adr':
             print('02*01 ADD: ',params[0],'+',params[1])
-            tr = tr + '{02 00 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
+            tr = tr + '{02 01 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
 
     if cmd == 'sub   ':
@@ -62,7 +62,7 @@ for i in instructions:
             #print(tr)
         if litadr[1] == 'adr':
             print('03*01 SUB: ',params[0],'-',params[1])
-            tr = tr + '{03 00 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
+            tr = tr + '{03 01 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
 
     if cmd == 'mul   ':
@@ -75,7 +75,7 @@ for i in instructions:
             #print(tr)
         if litadr[1] == 'adr':
             print('04*01 MUL: ',params[0],'*',params[1])
-            tr = tr + '{04 00 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
+            tr = tr + '{04 01 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
 
     if cmd == 'div   ':
@@ -88,7 +88,7 @@ for i in instructions:
             #print(tr)
         if litadr[1] == 'adr':
             print('05*01 DIV: ',params[0],'/',params[1])
-            tr = tr + '{05 00 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
+            tr = tr + '{05 01 01} {'+formats(params[0])+'} {'+formats(params[1])+'}'
             #print(tr)
 
     if cmd == 'label ':
