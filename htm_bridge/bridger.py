@@ -13,8 +13,27 @@ def formats(s):
 file = fileio('before.txt', 'r')
 instructions = file.split('\n')
 endtotal = ''
-compact = False
+compact = True
 
+tfind = []
+treplace = []
+for i in instructions:
+    iss = i.split(' // ', 1)[0]
+    cmd = iss[0:6]
+    ins = iss[7:]
+    if cmd == 'assign':
+        tl = ins.split('->')
+        tfind.append(tl[1])
+        treplace.append(tl[0])
+        
+        
+for i in tfind:
+    findex = tfind.index(i)
+    print(tfind[findex],'with' ,treplace[findex])
+    file = file.replace(tfind[findex], treplace[findex])
+
+instructions = file.split('\n')
+        
 ###########################################
 for i in instructions:
     iss = i.split(' // ', 1)[0]
@@ -208,7 +227,7 @@ for i in instructions:
 
         tr = tr.replace('INS.SKIP', str(jump) )
         print('0A',labyte,'IF POSTCOMP:',tr)
-
+       
 
 #############################################
     endtotal = endtotal + tr + '\n'
