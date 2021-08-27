@@ -21,21 +21,19 @@ register = {
 '0000000E': None,
 '0000000F': None,
 }
-memoryvar = ''
 
 def fileio(name, mode, contents = ""): #file io helper
+    f = open(name, mode)
     if mode == 'r':
-        global memoryvar
-        return memoryvar
-    if mode == 'a':
-        memoryvar = memoryvar + contents
-        return None
-    if mode == 'w':
-        memoryvar = contents
-        return None
+        tr = f.read()
+    if mode == 'a' or mode == 'w':
+        f.write(contents)
+        tr = None
+    f.close()
+    return tr
 
 #clear mem
-#fileio('memory.txt', 'w', '')
+fileio('memory.txt', 'w', '')
 
 def die(msg):
     input('ImpostorCPU Mem FATAL: '+msg+'\nPress <ENTER> to exit.')
@@ -57,8 +55,6 @@ def getbyte(addr): #take hex address and get the thing
         if offset >= 0:
             return xcn[offset+len(str(addr))+1:offset+len(str(addr))+3]
         else:
-            print(offset)
-            print(fileio('memory.txt', 'r'))
             die('Address '+str(addr)+' is invalid.')
         
 def writebyte(addr, byte): #take hex address and byte and write to mem, if already exist then overwrite
