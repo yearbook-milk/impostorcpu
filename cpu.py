@@ -2,6 +2,7 @@
 import memhandler
 import mathshandler
 import boolhandler
+import time
 print('ImpostorCPU :: beginning of execution')
 #preparation
 def fileio(name, mode, contents = ""):
@@ -73,7 +74,7 @@ def execute_program(startaddr):
             keepon = False
             return None
         elif current_ins[0] == '0E':
-            print('MEMORY:\n',fileio('memory.txt','r'),'REGISTERS:\n',memhandler.register)
+            print('MEMORY:\n',memhandler.fileio('memory.txt','r'),'REGISTERS:\n',memhandler.register)
             current_ins = [] # clear the ins list for next ins (11byte)
         elif current_ins[0] == '0B':
             die('0B is not a valid command')
@@ -230,9 +231,7 @@ def execute_program(startaddr):
 
         elif current_ins[0] == '01' and current_ins[1] == '01':
             if inrange(''.join(current_ins[3:7])):
-                f = open('memory.txt', 'r')
-                s = f.read()
-                f.close()
+                s = memhandler.fileio('memory.txt', 'r')
 
                 nhex_addr = int(''.join(current_ins[3:7]), 16)
                 print(str(hex(nhex_addr + 1))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '\n')
@@ -242,13 +241,13 @@ def execute_program(startaddr):
                 s = s.replace(str(hex(nhex_addr + 2))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '', '')
                 s = s.replace(str(hex(nhex_addr + 3))[2:].upper().zfill(8) + ' ' + memhandler.getbyte(''.join(current_ins[3:7])) + '', '')
 
-                fileio('memory.txt','w',s)    
+                memhandler.fileio('memory.txt','w',s)    
                                 
             else:
-                f = open('memory.txt', 'r')
-                s = f.read().replace(''.join(current_ins[3:7])+' '+memhandler.getbyte(''.join(current_ins[3:7]))+'\n', '' )
+                #f = open('memory.txt', 'r')
+                memhandler.fileio('memory.txt', 'r').replace(''.join(current_ins[3:7])+' '+memhandler.getbyte(''.join(current_ins[3:7]))+'\n', '' )
                 f.close()
-                fileio('memory.txt','w',s)                                   
+                memhandler.fileio('memory.txt','w',s)                                   
 
 
 
@@ -344,6 +343,7 @@ def execute_program(startaddr):
                 
         
         current_ins = []
+        time.sleep(0.1)
 
 #load instructions
 addr = 'A0000000'
