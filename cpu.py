@@ -54,6 +54,11 @@ print(bytelist)
 
 #the actual program
 def execute_program(startaddr):
+    # bus wipe on host
+    fileio('bus1in.bus','w')
+    fileio('bus2in.bus','w')
+    fileio('bus1out.bus','w')
+    fileio('bus2out.bus','w')
     nonhexaddr = int(startaddr, 16)
     keepon = True
     memhandler.writebyte('00000005',startaddr) #the program ticker
@@ -343,7 +348,22 @@ def execute_program(startaddr):
                 
         
         current_ins = []
-        time.sleep(0.1)
+
+        #bus instructions and handoff
+
+        bus1in = fileio('bus1in.bus','r')
+        bus2in = fileio('bus2in.bus','r')
+
+        if len(bus1in) > 0:
+            params = bus1in.split(' ')
+            memhandler.writefourbyte('0000010C', params[0], params[1], params[2], params[3])
+            bus1in = fileio('bus1in.bus','w')
+            print('BUS INPUT 0000010C')
+        if len(bus2in) > 0:
+            params = bus1in.split(' ')
+            memhandler.writefourbyte('00000110', params[0], params[1], params[2], params[3])
+            bus1in = fileio('bus2in.bus','w')
+            print('BUS INPUT 00000110')
 
 #load instructions
 addr = 'A0000000'
@@ -354,7 +374,7 @@ for i in bytelist:
     addr = str(hex(naddr + 1))[2:].zfill(8).upper()
     naddr = naddr + 1
     
-#input('ImpostorCPU: Ready to begin execution of instructions loaded into memory - <ENTER> to go')
+print('ImpostorCPU: Ready to begin execution of instructions loaded into memory - <ENTER> to go')
 execute_program('A0000000')
 input('ImpostorCPU :: end of execution')
     
