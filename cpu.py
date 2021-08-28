@@ -34,10 +34,10 @@ def wrapper_4byteget(addr):
     print('Inrange ',addr, inrange(addr) )
     if inrange(addr):
         b1 = memhandler.getbyte(addr)
-        b2 = memhandler.getbyte(str( hex ( int(addr, 16) + 1 ) )[2:].zfill(8) )
-        b3 = memhandler.getbyte(str( hex ( int(addr, 16) + 2 ) )[2:].zfill(8) )
-        b4 = memhandler.getbyte(str( hex ( int(addr, 16) + 3 ) )[2:].zfill(8) )
-        return str(b1+b2+b3+b4).zfill(8)
+        b2 = memhandler.getbyte(str( hex ( int(addr, 16) + 1 ) )[2:].zfill(8).upper() )
+        b3 = memhandler.getbyte(str( hex ( int(addr, 16) + 2 ) )[2:].zfill(8).upper() )
+        b4 = memhandler.getbyte(str( hex ( int(addr, 16) + 3 ) )[2:].zfill(8).upper() )
+        return str(b1+b2+b3+b4).zfill(8).upper()
     if not inrange(addr):
         print('Val Non32',memhandler.getbyte(addr))
         return memhandler.getbyte(addr)
@@ -59,6 +59,10 @@ def execute_program(startaddr):
     fileio('bus2in.bus','w')
     fileio('bus1out.bus','w')
     fileio('bus2out.bus','w')
+    # initialize special bus addresses to prevent invalid error
+    memhandler.writefourbyte('00000104', '00', '00', '00', '00')
+    memhandler.writefourbyte('00000108', '00', '00', '00', '00')
+
     nonhexaddr = int(startaddr, 16)
     keepon = True
     memhandler.writebyte('00000005',startaddr) #the program ticker
@@ -364,6 +368,18 @@ def execute_program(startaddr):
             memhandler.writefourbyte('00000110', params[0], params[1], params[2], params[3])
             bus1in = fileio('bus2in.bus','w')
             print('BUS INPUT 00000110')
+
+        bus1out = wrapper_4byteget('00000104')
+        bus2out = wrapper_4byteget('00000108')
+
+        print('BUS OUTPUT CHECK',bus1out,bus2out)
+
+        if bus1out != '00000000':
+                memhandler.writefourbyte('00000104', '00', '00', '00', '00')
+                fileio('bus1out.bus','w',bus1out)
+        if bus2out != '00000000':
+                memhandler.writefourbyte('00000108', '00', '00', '00', '00')
+                fileio('bus1out.bus','w',bus2out)
 
 #load instructions
 addr = 'A0000000'
