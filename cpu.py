@@ -381,7 +381,22 @@ def execute_program(startaddr):
                 memhandler.writefourbyte('00000108', '00', '00', '00', '00')
                 fileio('bus1out.bus','w',bus2out)
 
-#load instructions
+#load instructions for operating system into AF000000
+#nhaddr = 2936012800
+#addr = 'AF000000'
+#bytelistprelim = fileio('bioshandoff.txt', 'r').replace(' ', '').replace('{','').replace('}','').replace('\n','')
+#bytelista = []
+#print(bytelistprelim)
+#for index in range(0, len(bytelistprelim), 2):
+#    bytelista.append(bytess[index : index + 2])
+#    print(bytelista)
+#for i in bytelista:
+#    memhandler.writebyte(addr, i)
+#    nhaddr = nhaddr + 1
+#    addr = str(hex(nhaddr))[2:].zfill(8).upper()
+#    print('Loaded OS byte',i,'into memaddr',addr)
+
+#load instructions for bios into A0000000
 addr = 'A0000000'
 naddr = 2684354560
 for i in bytelist:
@@ -389,8 +404,11 @@ for i in bytelist:
     print('Loaded byte',i,'into memaddr',addr)
     addr = str(hex(naddr + 1))[2:].zfill(8).upper()
     naddr = naddr + 1
+
+
     
 print('ImpostorCPU: Ready to begin execution of instructions loaded into memory - <ENTER> to go')
 execute_program('A0000000')
 input('ImpostorCPU :: end of execution')
     
+#i turned my ide onto webdings and now i can't change it back please help
