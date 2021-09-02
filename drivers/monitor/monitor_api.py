@@ -86,7 +86,12 @@ def imageblank(color = black):
     img[0:height,0:width] = black
     ctx = ''
     
+def imagewhiteblank(color = white):
+    global img, ctx, black, white
+    img[0:height,0:width] = white
+    ctx = ''
+    
 
     cv2.imwrite('monitor_out.png', img)
 
-imgwrite('cv2 Basic Display API 1: on-startup self test successful\n4inches-usbstick/impostorcpu/drivers/monitor/monitor_api.py')
+imgwrite('cv2 Basic Display API 1: on-startup self test successful\n4inches-usbstick/impostorcpu/drivers/monitor/monitor_api.py\n')
