@@ -5,6 +5,7 @@ import boolhandler
 import time
 print('ImpostorCPU :: beginning of execution')
 #preparation
+
 def fileio(name, mode, contents = ""):
     f = open(name, mode)
     if mode == 'r':
@@ -80,7 +81,9 @@ def execute_program(startaddr, barray):
             print(current_ins)
         print('On instruction',current_ins)
         #print('Not going to do anything, that comes later.')
-
+        
+        time.sleep(0)
+        
         #some meta commands
         if current_ins[0] == '0D':
             print('Program terminated with 0D command')
@@ -163,6 +166,7 @@ def execute_program(startaddr, barray):
                 nextaddr = str(hex(nh_nextaddr))[2:].upper().zfill(8)
                 print('MOD IMPOSTOR CPU: jumping to ',nextaddr)
                 memhandler.writebyte('00000005', nextaddr)
+                nonhexaddr = int(nextaddr, 16)
         elif current_ins[0] == '08':
 
             #test
@@ -246,7 +250,11 @@ def execute_program(startaddr, barray):
                 print('01 00 Command 32',''.join(current_ins[3:7]), current_ins[7], current_ins[8], current_ins[9], current_ins[10])
             else:
                 memhandler.writebyte(''.join(current_ins[3:7]), current_ins[10])
-
+        
+        elif current_ins[0] == 'AF' and current_ins[1] == '00': #for writing a literal, the other option is delete
+                print('AF 00 force command')
+                memhandler.writebyte(''.join(current_ins[3:7]), current_ins[10])
+                
         elif current_ins[0] == '01' and current_ins[1] == '01':
             if inrange(''.join(current_ins[3:7])):
                 s = memhandler.fileio('memory.txt', 'r')
@@ -293,6 +301,9 @@ def execute_program(startaddr, barray):
                 mathshandler.operation_32bit(addr1, o, '+', addr2)
             else:
                 mathshandler.eightbit_operation(addr1, o, '+', addr2)
+
+
+            #die('success')
 
 
 
@@ -370,12 +381,12 @@ def execute_program(startaddr, barray):
         if len(bus1in) > 0:
             params = bus1in.split(' ')
             memhandler.writefourbyte('0000010C', params[0], params[1], params[2], params[3])
-            bus1in = fileio('bus1in.bus','w')
+            #bus1in = fileio('bus1in.bus','w')
             print('BUS INPUT 0000010C')
         if len(bus2in) > 0:
             params = bus1in.split(' ')
             memhandler.writefourbyte('00000110', params[0], params[1], params[2], params[3])
-            bus1in = fileio('bus2in.bus','w')
+            #bus1in = fileio('bus2in.bus','w')
             print('BUS INPUT 00000110')
 
         bus1out = wrapper_4byteget('00000104')
@@ -386,9 +397,13 @@ def execute_program(startaddr, barray):
         if bus1out != '00000000':
                 memhandler.writefourbyte('00000104', '00', '00', '00', '00')
                 fileio('bus1out.bus','w',bus1out)
+                print('---------------------------------------------------1-----TX',bus1out)
+                time.sleep(0.5)
         if bus2out != '00000000':
                 memhandler.writefourbyte('00000108', '00', '00', '00', '00')
                 fileio('bus1out.bus','w',bus2out)
+                time.sleep(0.5)
+                print('---------------------------------------------------2-----TX',bus2out)
 
 #load instructions for operating system into AF000000
 #nhaddr = 2936012800
@@ -408,11 +423,11 @@ def execute_program(startaddr, barray):
 #load instructions for bios into A0000000
 addr = 'A0000000'
 naddr = 2684354560
-for i in bytelist:
-    memhandler.writebyte(addr, i)
-    print('Loaded byte',i,'into memaddr',addr)
-    addr = str(hex(naddr + 1))[2:].zfill(8).upper()
-    naddr = naddr + 1
+#for i in bytelist:
+ #   memhandler.writebyte(addr, i)
+  #  print('Loaded byte',i,'into memaddr',addr)
+   # addr = str(hex(naddr + 1))[2:].zfill(8).upper()
+    #naddr = naddr + 1
 
 
     
