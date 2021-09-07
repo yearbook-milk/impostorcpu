@@ -1,0 +1,14 @@
+00000104: outbound bus 1
+00000108: outbound bus 2
+0000010C: inbound bus 1
+00000110: inbound bus 2
+(we don't have names for these buses so in theory you can use them for whatever)
+
+We have a file that stores the 'memory'. And we also have a secondary bus that also does memhandler calls.
+This way, instead of everyone writing through memory.txt, everyone uses memhandler calls and we use one file stream.
+
+This will be done in the CPU file to prevent simul. multiaccess as a result of hardware. As it executes instructions
+it also checks the 'bus file' for new instructions from hardware. This will most likely be done in a cheap manner by
+loading the instruction into the next one in the pile.
+
+Write to a certain 32bit address and a bus handler will send the data outbound. Send a command inbound and the bus handler will modify the memory for you.
