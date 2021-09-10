@@ -1,0 +1,91 @@
+assign 00000124->keypress
+assign E0000001->pendown
+remark HUMAN READABLE ADDRESS (for buses or otherwise)
+assign 00000114->xpos
+assign 00000118->ypos
+assign 0000011C->b4send
+assign E000000A->helper
+assign 00000104->outboundbus
+assign 0000010C->inboundbus
+
+memset keypress<-00 00 00 00
+memset pendown<-00 00 00 FF
+remark INITIALIZE ALL ADDRESSES USED
+memset xpos<-00 00 00 39
+memset ypos<-00 00 00 39
+memset b4send<-00 00 00 00
+memset helper<-00 00 00 00
+memset outboundbus<-00 00 00 00
+memset inboundbus<-00 00 00 00
+memset 00000000<-00 00 00 00
+
+memset outboundbus<-07 00 00 03
+memset outboundbus<-05 00 00 39
+memset outboundbus<-06 00 00 39 // initial values that change later
+
+label  00000120
+
+movmem inboundbus->keypress // get keypress
+
+compar lit[00000037] == adr[keypress] | helper // if pen up press
+if     adr[helper]
+memset pendown<-00 00 00 00
+memset pendown<-00 00 00 00
+endif  X
+
+compar lit[00000038] == adr[keypress] | helper // if pen dn press
+if     adr[helper]
+memset pendown<-FF FF FF FF
+memset pendown<-FF FF FF FF
+endif  X
+
+remark ------------ udlr block
+
+compar lit[00000000] == adr[pendown] | helper
+if     adr[helper]
+memset outboundbus<-09 00 00 00 // execute blank command if not pendown
+memset outboundbus<-09 00 00 00
+endif  X
+
+compar lit[00000031] == adr[keypress] | helper // if up
+if     adr[helper]
+add    ypos<-00 00 00 01 | lit
+add    xpos<-00 00 00 00 | lit
+endif  X
+
+compar lit[00000032] == adr[keypress] | helper // if dn
+if     adr[helper]
+sub    ypos<-00 00 00 01 | lit
+add    xpos<-00 00 00 00 | lit
+endif  X
+
+compar lit[00000033] == adr[keypress] | helper // if l
+if     adr[helper]
+add    ypos<-00 00 00 00 | lit
+sub    xpos<-00 00 00 01 | lit
+endif  X
+
+compar lit[00000034] == adr[keypress] | helper // if r
+if     adr[helper]
+add    ypos<-00 00 00 00 | lit
+add    xpos<-00 00 00 01 | lit
+endif  X
+
+remark This block of code is supposed to reput the pointer where you dragged it.
+remark It's the exact same as the above but it executes the draw px cmd instead of clear.
+
+movmem xpos->b4send // get xpos and then replace first byte with 05
+forcem 0000011C<-00000005
+movmem b4send->outboundbus // send to monitor to move x pointer
+
+movmem ypos->b4send // get ypos and then replace first byte with 06
+forcem 0000011C<-00000006
+movmem b4send->outboundbus // send to monitor to move y pointer
+
+memset outboundbus<-08 00 00 00 // execute draw px command
+
+goto   00000120 | adr
+
+remark -----------
+
+stop   X
